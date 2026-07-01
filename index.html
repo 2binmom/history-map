@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>역사 답사지 30곳 — 네이버지도 저장하기</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Apple SD Gothic Neo', sans-serif; background: #f5f6fa; color: #222; }
+
+  .header {
+    background: linear-gradient(135deg, #1a73e8, #0d47a1);
+    color: white; padding: 32px 24px 24px; text-align: center;
+  }
+  .header h1 { font-size: 22px; margin-bottom: 8px; }
+  .header p  { font-size: 14px; opacity: 0.88; line-height: 1.6; }
+
+  .how-to {
+    background: #fff8e1; border-left: 4px solid #f9a825;
+    margin: 20px 16px; padding: 14px 16px; border-radius: 8px;
+    font-size: 14px; line-height: 1.9;
+  }
+  .how-to strong { color: #e65100; }
+
+  .progress-bar-wrap { margin: 0 16px 4px; }
+  .progress-label { font-size: 13px; color: #555; margin-bottom: 6px; }
+  .progress-bar { background: #dde; border-radius: 99px; height: 10px; overflow: hidden; }
+  .progress-fill { background: linear-gradient(90deg, #43a047, #66bb6a); height: 100%; width: 0%; transition: width .4s; border-radius: 99px; }
+  .count-label { font-size: 13px; color: #43a047; font-weight: bold; margin-top: 4px; }
+
+  .region { margin: 20px 16px 8px; }
+  .region-title {
+    font-size: 13px; font-weight: bold; color: #fff;
+    background: #3949ab; display: inline-block;
+    padding: 4px 14px; border-radius: 99px; margin-bottom: 10px;
+  }
+
+  .place-card {
+    background: #fff; border-radius: 14px; margin-bottom: 10px;
+    padding: 14px 16px; display: flex; align-items: center; gap: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    transition: opacity .3s;
+  }
+  .place-card.done { opacity: 0.45; }
+
+  .check-wrap input[type=checkbox] { display: none; }
+  .check-wrap label {
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 2px solid #ccc; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 14px; transition: all .2s; flex-shrink: 0;
+  }
+  .check-wrap input:checked + label {
+    background: #43a047; border-color: #43a047; color: white;
+  }
+
+  .num { font-size: 12px; color: #aaa; font-weight: bold; width: 20px; flex-shrink: 0; text-align: center; }
+
+  .info { flex: 1; }
+  .place-name { font-size: 15px; font-weight: bold; color: #1a1a2e; margin-bottom: 2px; }
+  .place-desc { font-size: 12px; color: #888; }
+
+  .btn-open {
+    background: #03c75a; color: white; border: none;
+    padding: 9px 16px; border-radius: 10px; font-size: 13px;
+    font-weight: bold; cursor: pointer; white-space: nowrap;
+    text-decoration: none; display: inline-block; flex-shrink: 0;
+    transition: background .2s;
+  }
+  .btn-open:hover { background: #02b350; }
+
+  .all-done {
+    display: none; background: #e8f5e9; border: 2px solid #43a047;
+    margin: 16px; padding: 20px; border-radius: 14px;
+    text-align: center; font-size: 16px; color: #2e7d32;
+  }
+  .footer { text-align: center; padding: 24px; font-size: 12px; color: #aaa; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🏛️ 역사 답사지 30곳</h1>
+  <p>버튼 클릭 → 네이버지도에서 장소 열기 → ♥ 저장<br>완료하면 왼쪽 ○ 체크해서 진행상황 확인하세요!</p>
+</div>
+
+<div style="margin: 16px 16px 0; background: #e8eaf6; border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 12px;">
+  <span style="font-size: 28px;">📋</span>
+  <div>
+    <div style="font-size: 13px; color: #3949ab; font-weight: bold; margin-bottom: 3px;">30곳 상세 설명 보기</div>
+    <a href="https://app.notion.com/p/390a9b27793981f09a31d9abedd2405b" target="_blank"
+       style="font-size: 12px; color: #5c6bc0; text-decoration: none; word-break: break-all;">
+      🏛️ 지역별 역사 답사지 리스트 (노션 페이지) →
+    </a>
+  </div>
+</div>
+
+<div class="how-to">
+  <strong>📌 저장 방법</strong><br>
+  ① 아래 <strong>[지도에서 열기]</strong> 버튼 클릭<br>
+  ② 네이버지도에서 장소 확인 후 <strong>♥ 저장</strong> 클릭<br>
+  ③ 만들어 둔 목록 선택 (없으면 <strong>새 목록 만들기</strong>)<br>
+  ④ 왼쪽 ○ 눌러 체크!
+</div>
+
+<div class="progress-bar-wrap">
+  <div class="progress-label">진행상황</div>
+  <div class="progress-bar"><div class="progress-fill" id="fill"></div></div>
+  <div class="count-label" id="count">0 / 30 완료</div>
+</div>
+
+<div class="all-done" id="allDone">
+  🎉 30곳 모두 저장 완료! 수고하셨어요!
+</div>
+
+<!-- 서울 -->
+<div class="region">
+  <div class="region-title">🏙️ 서울권역 (6곳)</div>
+
+  <div class="place-card" id="c1">
+    <div class="check-wrap"><input type="checkbox" id="ch1" onchange="check(1)"><label for="ch1">✓</label></div>
+    <div class="num">1</div>
+    <div class="info"><div class="place-name">서울 암사동 유적</div><div class="place-desc">신석기 시대 주거지 · 빗살무늬 토기</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/서울 암사동 유적" target="_blank">지도에서 열기</a>
+  </div>
+
+  <div class="place-card" id="c2">
+    <div class="check-wrap"><input type="checkbox" id="ch2" onchange="check(2)"><label for="ch2">✓</label></div>
+    <div class="num">2</div>
+    <div class="info"><div class="place-name">경복궁</div><div class="place-desc">조선 제일의 법궁 · 근정전 · 경회루</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/경복궁" target="_blank">지도에서 열기</a>
+  </div>
+
+  <div class="place-card" id="c3">
+    <div class="check-wrap"><input type="checkbox" id="ch3" onchange="check(3)"><label for="ch3">✓</label></div>
+    <div class="num">3</div>
+    <div class="info"><div class="place-name">덕수궁</div><div class="place-desc">고종이 머문 궁 · 석조전 · 중화전</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/덕수궁" target="_blank">지도에서 열기</a>
+  </div>
+
+  <div class="place-card" id="c4">
+    <div class="check-wrap"><input type="checkbox" id="ch4" onchange="check(4)"><label for="ch4">✓</label></div>
+    <div class="num">4</div>
+    <div class="info"><div class="place-name">구 러시아 공사관</div><div class="place-desc">아관파천 현장 · 고종의 길</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/구 러시아 공사관 서울" target="_blank">지도에서 열기</a>
+  </div>
+
+  <div class="place-card" id="c5">
+    <div class="check-wrap"><input type="checkbox" id="ch5" onchange="check(5)"><label for="ch5">✓</label></div>
+    <div class="num">5</div>
+    <div class="info"><div class="place-name">서대문 형무소 역사관</div><div class="place-desc">일제강점기 독립운동가 수감 장소</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/서대문형무소역사관" target="_blank">지도에서 열기</a>
+  </div>
+
+  <div class="place-card" id="c6">
+    <div class="check-wrap"><input type="checkbox" id="ch6" onchange="check(6)"><label for="ch6">✓</label></div>
+    <div class="num">6</div>
+    <div class="info"><div class="place-name">전쟁기념관</div><div class="place-desc">6·25전쟁 역사 전시 · 옥외 장비 전시</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/전쟁기념관 서울 용산" target="_blank">지도에서 열기</a>
+  </div>
+</div>
+
+<!-- 경기·인천 -->
+<div class="region">
+  <div class="region-title">🌾 경기·인천권역 (7곳)</div>
+
+  <div class="place-card" id="c7">
+    <div class="check-wrap"><input type="checkbox" id="ch7" onchange="check(7)"><label for="ch7">✓</label></div>
+    <div class="num">7</div>
+    <div class="info"><div class="place-name">연천 전곡리 유적</div><div class="place-desc">구석기 시대 유적 · 전곡선사박물관</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/연천 전곡리 유적" target="_blank">지도에서 열기</a>
+  </div>
+
+  <div class="place-card" id="c8">
+    <div class="check-wrap"><input type="checkbox" id="ch8" onchange="check(8)"><label for="ch8">✓</label></div>
+    <div class="num">8</div>
+    <div class="info"><div class="place-name">강화산성과 고려 궁지</div><div class="place-desc">몽골 침입 대항 · 고려 임시 수도</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/강화 고려궁지" target="_blank">지도에서 열기</a>
+  </div>
+
+  <div class="place-card" id="c9">
+    <div class="check-wrap"><input type="checkbox" id="ch9" onchange="check(9)"><label for="ch9">✓</label></div>
+    <div class="num">9</div>
+    <div class="info"><div class="place-name">영릉(세종대왕릉)과 영릉(효종릉)</div><div class="place-desc">여주 · 조선 왕릉 · 세종대왕역사문화관</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/세종대왕릉 여주 영릉" target="_blank">지도에서 열기</a>
+  </div>
+
+  <div class="place-card" id="c10">
+    <div class="check-wrap"><input type="checkbox" id="ch10" onchange="check(10)"><label for="ch10">✓</label></div>
+    <div class="num">10</div>
+    <div class="info"><div class="place-name">수원 화성</div><div class="place-desc">정조의 계획 성곽 · 유네스코 세계유산</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/수원화성" target="_blank">지도에서 열기</a>
+  </div>
+
+  <div class="place-card" id="c11">
+    <div class="check-wrap"><input type="checkbox" id="ch11" onchange="check(11)"><label for="ch11">✓</label></div>
+    <div class="num">11</div>
+    <div class="info"><div class="place-name">정약용 유적지</div><div class="place-desc">남양주 다산 생가 · 실학박물관</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/정약용유적지 남양주" target="_blank">지도에서 열기</a>
+  </div>
+
+  <div class="place-card" id="c12">
+    <div class="check-wrap"><input type="checkbox" id="ch12" onchange="check(12)"><label for="ch12">✓</label></div>
+    <div class="num">12</div>
+    <div class="info"><div class="place-name">강화 광성보 (병인·신미양요 유적)</div><div class="place-desc">서양 세력 대항 격전지 · 어재연 장군</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/강화 광성보" target="_blank">지도에서 열기</a>
+  </div>
+
+  <div class="place-card" id="c13">
+    <div class="check-wrap"><input type="checkbox" id="ch13" onchange="check(13)"><label for="ch13">✓</label></div>
+    <div class="num">13</div>
+    <div class="info"><div class="place-name">판문점 (JSA)</div><div class="place-desc">남북 분단의 상징 · 정전협정 체결지</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/판문점" target="_blank">지도에서 열기</a>
+  </div>
+</div>
+
+<!-- 충청 -->
+<div class="region">
+  <div class="region-title">🌿 충청권역 (3곳)</div>
+
+  <div class="place-card" id="c14">
+    <div class="check-wrap"><input type="checkbox" id="ch14" onchange="check(14)"><label for="ch14">✓</label></div>
+    <div class="num">14</div>
+    <div class="info"><div class="place-name">공주 공산성 · 송산리 고분군</div><div class="place-desc">웅진백제 · 무령왕릉 · 유네스코 세계유산</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/공주 공산성" target="_blank">지도에서 열기</a>
+  </div>
+
+  <div class="place-card" id="c15">
+    <div class="check-wrap"><input type="checkbox" id="ch15" onchange="check(15)"><label for="ch15">✓</label></div>
+    <div class="num">15</div>
+    <div class="info"><div class="place-name">부여 부소산성 · 정림사지</div><div class="place-desc">사비백제 · 낙화암 · 백제 금동 대향로</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/부여 부소산성" target="_blank">지도에서 열기</a>
+  </div>
+
+  <div class="place-card" id="c16">
+    <div class="check-wrap"><input type="checkbox" id="ch16" onchange="check(16)"><label for="ch16">✓</label></div>
+    <div class="num">16</div>
+    <div class="info"><div class="place-name">독립기념관</div><div class="place-desc">천안 · 독립운동 종합 전시 · 입장 무료</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/독립기념관 천안" target="_blank">지도에서 열기</a>
+  </div>
+</div>
+
+<!-- 전라 -->
+<div class="region">
+  <div class="region-title">🌊 전라권역 (3곳)</div>
+
+  <div class="place-card" id="c17">
+    <div class="check-wrap"><input type="checkbox" id="ch17" onchange="check(17)"><label for="ch17">✓</label></div>
+    <div class="num">17</div>
+    <div class="info"><div class="place-name">화순 고인돌 유적</div><div class="place-desc">선사시대 거석문화 · 유네스코 세계유산</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/화순 고인돌 유적" target="_blank">지도에서 열기</a>
+  </div>
+
+  <div class="place-card" id="c18">
+    <div class="check-wrap"><input type="checkbox" id="ch18" onchange="check(18)"><label for="ch18">✓</label></div>
+    <div class="num">18</div>
+    <div class="info"><div class="place-name">경기전 (전주)</div><div class="place-desc">태조 어진 봉안 · 전주사고 · 어진박물관</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/경기전 전주" target="_blank">지도에서 열기</a>
+  </div>
+
+  <div class="place-card" id="c19">
+    <div class="check-wrap"><input type="checkbox" id="ch19" onchange="check(19)"><label for="ch19">✓</label></div>
+    <div class="num">19</div>
+    <div class="info"><div class="place-name">동학농민운동 유적지 (정읍)</div><div class="place-desc">만석보지 · 전봉준 유적 · 1894년 봉기</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/정읍 전봉준유적지" target="_blank">지도에서 열기</a>
+  </div>
+</div>
+
+<!-- 경상 -->
+<div class="region">
+  <div class="region-title">🏔️ 경상권역 (6곳)</div>
+
+  <div class="place-card" id="c20">
+    <div class="check-wrap"><input type="checkbox" id="ch20" onchange="check(20)"><label for="ch20">✓</label></div>
+    <div class="num">20</div>
+    <div class="info"><div class="place-name">김해 가야 유적</div><div class="place-desc">수로왕릉 · 봉황동 유적 · 금관가야</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/김해 수로왕릉" target="_blank">지도에서 열기</a>
+  </div>
+
+  <div class="place-card" id="c21">
+    <div class="check-wrap"><input type="checkbox" id="ch21" onchange="check(21)"><label for="ch21">✓</label></div>
+    <div class="num">21</div>
+    <div class="info"><div class="place-name">경주 신라 유적</div><div class="place-desc">첨성대 · 동궁과 월지 · 황룡사지</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/경주 첨성대" target="_blank">지도에서 열기</a>
+  </div>
+
+  <div class="place-card" id="c22">
+    <div class="check-wrap"><input type="checkbox" id="ch22" onchange="check(22)"><label for="ch22">✓</label></div>
+    <div class="num">22</div>
+    <div class="info"><div class="place-name">석굴암과 불국사</div><div class="place-desc">경주 · 유네스코 세계유산 · 통일신라 불교 예술</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/경주 불국사" target="_blank">지도에서 열기</a>
+  </div>
+
+  <div class="place-card" id="c23">
+    <div class="check-wrap"><input type="checkbox" id="ch23" onchange="check(23)"><label for="ch23">✓</label></div>
+    <div class="num">23</div>
+    <div class="info"><div class="place-name">합천 해인사</div><div class="place-desc">팔만대장경 · 장경판전 · 유네스코 세계유산</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/합천 해인사" target="_blank">지도에서 열기</a>
+  </div>
+
+  <div class="place-card" id="c24">
+    <div class="check-wrap"><input type="checkbox" id="ch24" onchange="check(24)"><label for="ch24">✓</label></div>
+    <div class="num">24</div>
+    <div class="info"><div class="place-name">도산서원</div><div class="place-desc">안동 · 퇴계 이황 · 유네스코 세계유산</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/도산서원 안동" target="_blank">지도에서 열기</a>
+  </div>
+
+  <div class="place-card" id="c25">
+    <div class="check-wrap"><input type="checkbox" id="ch25" onchange="check(25)"><label for="ch25">✓</label></div>
+    <div class="num">25</div>
+    <div class="info"><div class="place-name">삼도수군통제영 (통영)</div><div class="place-desc">이순신 장군 해군 사령부 · 세병관</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/통영 삼도수군통제영" target="_blank">지도에서 열기</a>
+  </div>
+</div>
+
+<!-- 강원 -->
+<div class="region">
+  <div class="region-title">🌲 강원권역 (3곳)</div>
+
+  <div class="place-card" id="c26">
+    <div class="check-wrap"><input type="checkbox" id="ch26" onchange="check(26)"><label for="ch26">✓</label></div>
+    <div class="num">26</div>
+    <div class="info"><div class="place-name">영월 청령포 · 장릉</div><div class="place-desc">단종 유배지 · 비극의 역사</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/영월 청령포" target="_blank">지도에서 열기</a>
+  </div>
+
+  <div class="place-card" id="c27">
+    <div class="check-wrap"><input type="checkbox" id="ch27" onchange="check(27)"><label for="ch27">✓</label></div>
+    <div class="num">27</div>
+    <div class="info"><div class="place-name">강릉 오죽헌</div><div class="place-desc">신사임당 · 율곡 이이 생가</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/강릉 오죽헌" target="_blank">지도에서 열기</a>
+  </div>
+
+  <div class="place-card" id="c28">
+    <div class="check-wrap"><input type="checkbox" id="ch28" onchange="check(28)"><label for="ch28">✓</label></div>
+    <div class="num">28</div>
+    <div class="info"><div class="place-name">고성 통일전망대</div><div class="place-desc">금강산 조망 · DMZ박물관</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/고성 통일전망대" target="_blank">지도에서 열기</a>
+  </div>
+</div>
+
+<!-- 제주 -->
+<div class="region">
+  <div class="region-title">🌺 제주권역 (2곳)</div>
+
+  <div class="place-card" id="c29">
+    <div class="check-wrap"><input type="checkbox" id="ch29" onchange="check(29)"><label for="ch29">✓</label></div>
+    <div class="num">29</div>
+    <div class="info"><div class="place-name">항파두리 항몽유적</div><div class="place-desc">삼별초 최후 항전지 · 고려 항몽 유적</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/항파두리 항몽유적지" target="_blank">지도에서 열기</a>
+  </div>
+
+  <div class="place-card" id="c30">
+    <div class="check-wrap"><input type="checkbox" id="ch30" onchange="check(30)"><label for="ch30">✓</label></div>
+    <div class="num">30</div>
+    <div class="info"><div class="place-name">제주 4·3 평화기념관</div><div class="place-desc">1948년 4·3 사건 · 희생자 추모 공간</div></div>
+    <a class="btn-open" href="https://map.naver.com/v5/search/제주 4.3 평화기념관" target="_blank">지도에서 열기</a>
+  </div>
+</div>
+
+<div class="all-done" id="allDone">🎉 30곳 모두 저장 완료! 정말 수고하셨어요!</div>
+<div class="footer">투빈맘 역사 답사지 리스트 · 출처: 천재교육 지역별 역사 답사 자료집</div>
+
+<script>
+  let done = 0;
+  function check(n) {
+    const cb = document.getElementById('ch' + n);
+    const card = document.getElementById('c' + n);
+    if (cb.checked) { done++; card.classList.add('done'); }
+    else { done--; card.classList.remove('done'); }
+    document.getElementById('fill').style.width = (done / 30 * 100) + '%';
+    document.getElementById('count').textContent = done + ' / 30 완료';
+    document.getElementById('allDone').style.display = done === 30 ? 'block' : 'none';
+  }
+</script>
+</body>
+</html>
