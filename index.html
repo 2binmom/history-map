@@ -26,6 +26,15 @@
   }
   .header h1 { font-size: 22px; margin-bottom: 8px; }
   .header p  { font-size: 14px; opacity: 0.88; line-height: 1.6; }
+  .kakao-share-btn {
+    display: inline-flex; align-items: center; gap: 8px; margin-top: 14px;
+    background: #FEE500; color: #3A2A33;
+    border: none; cursor: pointer; font-family: inherit;
+    padding: 10px 22px; border-radius: 999px; font-size: 14px; font-weight: 700;
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .kakao-share-btn:hover { opacity: 0.88; transform: scale(1.03); }
+  .kakao-share-btn.copied { background: #fff; color: #0d47a1; }
 
   .how-to {
     background: #fff8e1; border-left: 4px solid #f9a825;
@@ -93,6 +102,7 @@
 <div class="header">
   <h1>🏛️ 역사 답사지 30곳</h1>
   <p>버튼 클릭 → 네이버지도에서 장소 열기 → ♥ 저장<br>완료하면 왼쪽 ○ 체크해서 진행상황 확인하세요!</p>
+  <button type="button" class="kakao-share-btn" onclick="shareKakao(this)">💬 카톡으로 공유</button>
 </div>
 
 <div style="margin: 16px 16px 0; background: #e8eaf6; border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 12px;">
@@ -373,6 +383,30 @@
 <div class="footer">투빈맘 역사 답사지 리스트 · 출처: 천재교육 지역별 역사 답사 자료집</div>
 
 <script>
+  function shareKakao(btn){
+    var url = location.href;
+    if (navigator.share){
+      navigator.share({ title: document.title, url: url }).catch(function(){});
+      return;
+    }
+    var textarea = document.createElement("textarea");
+    textarea.value = url;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(textarea);
+    if (btn._resetTimer) clearTimeout(btn._resetTimer);
+    btn.classList.add("copied");
+    btn.textContent = ok ? "✅ 링크 복사완료!" : "🔗 " + url;
+    btn._resetTimer = setTimeout(function(){
+      btn.classList.remove("copied");
+      btn.textContent = "💬 카톡으로 공유";
+    }, ok ? 1800 : 4000);
+  }
+
   let done = 0;
   function check(n) {
     const cb = document.getElementById('ch' + n);
